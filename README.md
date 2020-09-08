@@ -1,9 +1,7 @@
-# Node App weather (WIP)
+# Node web server (Heroku)
 
 ## Usage
 
 ```
-node app -d "New York"
+nodemon server.js
 ```
-
-## NOT WORKING SINCE APIs ARE DOWN
