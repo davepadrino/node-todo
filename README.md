@@ -3,5 +3,6 @@
 ## Usage
 
 ```
-nodemon server.js
+### Start:
+nodemon server/server
 ```
