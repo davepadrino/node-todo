@@ -12,12 +12,16 @@ app.get("/", (req, res) => {
   res.json("Hello!");
 });
 
-mongoose.connect("mongodb://localhost:27017/coffee", (err) => {
-  if (err) {
-    throw err;
+mongoose.connect(
+  process.env.URLDB,
+  { useNewUrlParser: true, useCreateIndex: true },
+  (err) => {
+    if (err) {
+      throw err;
+    }
+    console.log("DB Online");
   }
-  console.log("DB Online");
-});
+);
 
 app.listen(process.env.PORT, () => {
   console.log(`Listening on port ${process.env.PORT}...`);
