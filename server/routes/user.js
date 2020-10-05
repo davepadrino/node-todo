@@ -2,11 +2,11 @@ const express = require("express");
 const bcrypt = require("bcrypt");
 const _ = require("underscore");
 const User = require("../models/user");
-const user = require("../models/user");
+const { checkToken, verifyAdmin } = require("../middlewares/auth");
 
 const app = express();
 
-app.get("/user", (req, res) => {
+app.get("/user", checkToken, (req, res) => {
   let from = Number(req.query.from) || 0;
   from = Number(from);
   let limit = req.query.limit || 5;
@@ -23,13 +23,13 @@ app.get("/user", (req, res) => {
         });
       }
 
-      User.count({ status: true }, (err, count) => {
+      User.count({ status: true }, (_, count) => {
         res.json({ ok: true, users, count });
       });
     });
 });
 
-app.post("/user", (req, res) => {
+app.post("/user", [checkToken, verifyAdmin], (req, res) => {
   const body = req.body;
   const user = new User({
     name: body.name,
@@ -39,7 +39,6 @@ app.post("/user", (req, res) => {
   });
 
   user.save((err, userDB) => {
-    console.log("err", err);
     if (err) {
       res.status(400).json({
         ok: false,
@@ -51,7 +50,7 @@ app.post("/user", (req, res) => {
   });
 });
 
-app.put("/user/:id", (req, res) => {
+app.put("/user/:id", [checkToken, verifyAdmin], (req, res) => {
   const id = req.params.id;
   const body = _.pick(req.body, "name", "email", "role", "img", "status");
 
@@ -72,7 +71,7 @@ app.put("/user/:id", (req, res) => {
   );
 });
 
-app.delete("/user/:id", (req, res) => {
+app.delete("/user/:id", [checkToken, verifyAdmin], (req, res) => {
   let id = req.params.id;
   User.findByIdAndRemove(id, (err, user) => {
     if (err) {

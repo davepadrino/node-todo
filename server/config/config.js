@@ -9,4 +9,10 @@ if (process.env.NODE_ENV === "dev") {
   urlDB = process.env.MONGO_URI;
 }
 
+// ***********
+// Token exp
+// ***********
+process.env.EXP_TOKEN = 60 * 60 * 34 * 30;
+process.env.SEED = process.env.SEED || "secret";
+
 process.env.URLDB = urlDB;
