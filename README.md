@@ -4,6 +4,7 @@
 
 ```
 ### Start:
+sudo mongod
 nodemon server/server
 ```
 
