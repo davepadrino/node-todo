@@ -27,7 +27,23 @@ const verifyAdmin = (req, res, next) => {
   }
 };
 
+const verifyTokenImg = (req, res, next) => {
+  const token = req.query.token;
+  jwt.verify(token, process.env.SEED, (err, decoded) => {
+    if (err) {
+      res.status(401).json({
+        ok: false,
+        err,
+      });
+    }
+
+    req.user = decoded.user;
+    next();
+  });
+};
+
 module.exports = {
   checkToken,
   verifyAdmin,
+  verifyTokenImg,
 };

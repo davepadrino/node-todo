@@ -2,7 +2,6 @@ const express = require("express");
 const app = express();
 
 const { checkToken } = require("../middlewares/auth");
-const product = require("../models/product");
 const Product = require("../models/product");
 
 // ======
