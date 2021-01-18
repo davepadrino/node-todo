@@ -1,32 +1,29 @@
-const express = require("express");
+const express = require('express');
+const socketIO = require('socket.io');
+const http = require('http');
+
+const path = require('path');
+
 const app = express();
-const mongoose = require("mongoose");
-const bodyParser = require("body-parser");
-const path = require("path");
-require("./config/config");
+let server = http.createServer(app);
 
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
-app.use(require("./routes/index"));
+const publicPath = path.resolve(__dirname, '../public');
+const port = process.env.PORT || 3000;
 
-// enable public folder
-app.use(express.static(path.resolve(__dirname, "../public")));
+app.use(express.static(publicPath));
 
-app.get("/", (req, res) => {
-  res.json("Hello!");
-});
+// IO = esta es la comunicacion del backend
+module.exports.io = socketIO(server);
+require('./sockets/socket');
 
-mongoose.connect(
-  process.env.URLDB,
-  { useNewUrlParser: true, useCreateIndex: true },
-  (err) => {
-    if (err) {
-      throw err;
-    }
-    console.log("DB Online");
-  }
-);
 
-app.listen(process.env.PORT, () => {
-  console.log(`Listening on port ${process.env.PORT}...`);
+
+
+
+server.listen(port, (err) => {
+
+    if (err) throw new Error(err);
+
+    console.log(`Servidor corriendo en puerto ${ port }`);
+
 });

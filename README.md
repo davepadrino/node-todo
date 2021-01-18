@@ -1,18 +1,15 @@
-# Node web server (Heroku)
+# Notas:
 
-## Usage
+Este es un pequeño servidor de express listo para ejecutarse y servir la carpeta public en la web.
+
+Recuerden que deben de reconstruir los módulos de node con el comando
 
 ```
-### Start:
-sudo mongod
+npm install
+```
+
+To start server
+
+```
 nodemon server/server
-```
-
-### Heroku config env variables
-
-```
-heroku config:set SEED="seed-prod" // set env var
-
-heroku config // list env vars
-
 ```
