@@ -6,9 +6,30 @@ const ticketControl = new TicketControl();
 io.on("connection", (client) => {
   console.log("Usuario conectado");
 
-  client.on("nextTicket", (data, callback) => {
+  client.on("nextTicket", (_, callback) => {
     const next = ticketControl.nextTicket();
     callback(next);
+  });
+
+  client.emit("currentState", {
+    currentState: ticketControl.getLastTicket(),
+    lastFour: ticketControl.getLastFour(),
+  });
+
+  client.on("takeTicket", (data, callback) => {
+    if (!data.desktop) {
+      return callback({
+        err: true,
+      });
+    }
+
+    const ticketToTake = ticketControl.takeTicket(data.desktop);
+    callback(ticketToTake);
+
+    // update notify changes in last 4
+    client.broadcast.emit("lastFour", {
+      lastFour: ticketControl.getLastFour(),
+    });
   });
 
   client.emit("enviarMensaje", {
@@ -25,16 +46,5 @@ io.on("connection", (client) => {
     console.log(data);
 
     client.broadcast.emit("enviarMensaje", data);
-
-    // if (mensaje.usuario) {
-    //     callback({
-    //         resp: 'TODO SALIO BIEN!'
-    //     });
-
-    // } else {
-    //     callback({
-    //         resp: 'TODO SALIO MAL!!!!!!!!'
-    //     });
-    // }
   });
 });

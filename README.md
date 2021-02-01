@@ -12,4 +12,6 @@ To start server
 
 ```
 nodemon server/server
+
+nodermon server/server -e js,html
 ```
