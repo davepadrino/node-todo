@@ -1,6 +1,5 @@
 var socket = io();
-
-const params = new URLSearchParams(window.location.search);
+// const { renderUsers}
 
 if (!params.has("name") || !params.has("room")) {
   window.location = "index.html";
@@ -15,7 +14,7 @@ const user = {
 socket.on("connect", function () {
   console.log("Conectado al servidor");
   socket.emit("getInChat", user, (res) => {
-    console.log("res", res);
+    renderUsers(res);
   });
 });
 
@@ -24,20 +23,9 @@ socket.on("disconnect", function () {
   console.log("Perdimos conexión con el servidor");
 });
 
-// send broadcast message
-// socket.emit(
-//   "createMessage",
-//   {
-//     user: "dave",
-//     message: "ldsldslds",
-//   },
-//   (resp) => {
-//     console.log("res");
-//   }
-// );
-
 socket.on("createMessage", (message) => {
-  console.log("server", message);
+  renderMessages(message, false);
+  scrollBottom();
 });
 
 // listen when user in/out the chat

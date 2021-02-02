@@ -17,14 +17,23 @@ io.on("connection", (client) => {
       .to(data.room)
       .emit("userList", users.getUsersPerRooms(data.room));
     callback(users.getUsersPerRooms(data.room));
+    // notify when user joins
+    client.broadcast
+      .to(data.room)
+      .emit(
+        "createMessage",
+        createMessage("Admin", `${data.name} joined chat`)
+      );
   });
 
   // test in browser: socket.emit('createMessage', { message: "hello"})
-  client.on("createMessage", (data) => {
+  client.on("createMessage", (data, callback) => {
     const user = users.getUser(client.id);
     console.log("user", user);
     const message = createMessage(user.name, data.message);
     client.broadcast.to(user.room).emit("createMessage", message);
+
+    callback(message);
   });
 
   client.on("disconnect", () => {
