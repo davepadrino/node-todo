@@ -1,50 +1,50 @@
 const { io } = require("../server");
-const { TicketControl } = require("../classes/ticket-control");
-
-const ticketControl = new TicketControl();
+const { Users } = require("../classes/users");
+const { createMessage } = require("../utils/utils");
+const users = new Users();
 
 io.on("connection", (client) => {
-  console.log("Usuario conectado");
-
-  client.on("nextTicket", (_, callback) => {
-    const next = ticketControl.nextTicket();
-    callback(next);
-  });
-
-  client.emit("currentState", {
-    currentState: ticketControl.getLastTicket(),
-    lastFour: ticketControl.getLastFour(),
-  });
-
-  client.on("takeTicket", (data, callback) => {
-    if (!data.desktop) {
+  client.on("getInChat", (data, callback) => {
+    if (!data.name || !data.room) {
       return callback({
         err: true,
       });
     }
-
-    const ticketToTake = ticketControl.takeTicket(data.desktop);
-    callback(ticketToTake);
-
-    // update notify changes in last 4
-    client.broadcast.emit("lastFour", {
-      lastFour: ticketControl.getLastFour(),
-    });
+    client.join(data.room);
+    const usersResult = users.addUser(client.id, data.name, data.room);
+    // let people know new connection
+    client.broadcast
+      .to(data.room)
+      .emit("userList", users.getUsersPerRooms(data.room));
+    callback(users.getUsersPerRooms(data.room));
   });
 
-  client.emit("enviarMensaje", {
-    usuario: "Administrador",
-    mensaje: "Bienvenido a esta aplicación",
+  // test in browser: socket.emit('createMessage', { message: "hello"})
+  client.on("createMessage", (data) => {
+    const user = users.getUser(client.id);
+    console.log("user", user);
+    const message = createMessage(user.name, data.message);
+    client.broadcast.to(user.room).emit("createMessage", message);
   });
 
   client.on("disconnect", () => {
-    console.log("Usuario desconectado");
+    const userRemoved = users.removeUser(client.id);
+    client.broadcast
+      .to(userRemoved.room)
+      .emit(
+        "createMessage",
+        createMessage("Admin", `${userRemoved.name} left chat`)
+      );
+    client.broadcast
+      .to(userRemoved.room)
+      .emit("userList", users.getUsersPerRooms(userRemoved.room));
   });
 
-  // Escuchar el cliente
-  client.on("enviarMensaje", (data, callback) => {
-    console.log(data);
-
-    client.broadcast.emit("enviarMensaje", data);
+  // private messages: socket.emit('privateMessage', { message: "hello", to: "_fQv_MIjxm2XEC4vAAAD"})
+  client.on("privateMessage", (data) => {
+    const user = users.getUser(client.id);
+    client.broadcast
+      .to(data.to)
+      .emit("privateMessage", createMessage(user.name, data.message));
   });
 });
